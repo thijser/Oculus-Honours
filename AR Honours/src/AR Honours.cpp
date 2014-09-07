@@ -23,10 +23,10 @@ Mat fish ;
 Mat base ;
 bool f = false;
 bool b = false;
-int screenx=20;
-int screeny=20;
-int spacing=50;
-Size imagesize(1280,960);
+int screenx=0;
+int screeny=0;
+int spacing=0;
+Size imagesize(1920,1080);
 
 Mat genfish(Mat base) {
 	std::vector<float> vec;
@@ -53,15 +53,16 @@ Mat genfish(Mat base) {
 	}
 	return Mat(vec);
 }
-Mat bladArray(Mat base) {
-	std::vector<float> vec;
-	for (int x = 0; x < base.cols; x++) {
-		for (int y = 0; y < base.rows; y++) {
-			vec.push_back(y * base.cols + x);
-		}
-	}
-	return Mat(vec);
-}
+Mat base1(Mat base) {
+     std::vector<float> vec;
+       for (int x = 0; x < base.cols; x++) {
+           for (int y = 0; y < base.rows; y++) {
+               vec.push_back(x*base.rows + y);
+           }
+       }
+       return Mat(vec);
+   }
+
 
  Mat warp(Mat input) {
 	if (!f) {
@@ -69,7 +70,7 @@ Mat bladArray(Mat base) {
 		f = true;
 	}
 	if (!b) {
-		base = bladArray(input);
+		base = base1(input);
 		b = true;
 	}
 
@@ -112,13 +113,14 @@ Mat scetch(Mat input) {
 }
 //applies filters
 Mat filter(Mat input) {
-	Mat out = sketch2(input);
+	Mat out = input;//scetch(input);
 
 	cout<<"size"<<out.cols<<out.rows<< endl;;
 
 
 	return out;
 }
+
 
 void output(Mat left, Mat right) {
 	Mat imgResult(left.rows, 2 * left.cols+spacing, left.type());
@@ -141,17 +143,22 @@ void output(Mat left, Mat right) {
 
 }
 int main(int, char**) {
-	VideoCapture cap(0); //open cam
-	if (!cap.isOpened())
+	VideoCapture cap1(2); //open cam
+	VideoCapture cap2(1);
+	if (!cap1.isOpened())
 		return -1;
-
+	if (!cap2.isOpened())
+			return -1;
 	Mat edges;
 	namedWindow("edges", 1);
 	while (true) {
-		Mat frame;
-		cap >> frame; // get a new frame from camera
-		Mat result = filter(frame);
-		output(result, result);
+		Mat framer;
+		Mat framel;
+		cap1 >> framer; // get a new frame from camera
+		cap2 >> framel;
+		Mat resultr = filter(framer);
+		Mat resultl = filter(framel);
+		output(resultl, resultr);
 
 		if (waitKey(1) >= 0)
 			break;
